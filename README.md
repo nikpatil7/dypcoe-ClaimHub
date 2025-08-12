@@ -1,6 +1,6 @@
-# dypcoe-Findr
+# dypcoe-ClaimHub
 
-# 🔍 Findr - Lost & Found System for DYPCOE  
+# 🔍 ClaimHub - Lost & Found System for DYPCOE  
 
 *A digital platform to report, track, and reclaim lost items on campus.*  
 
