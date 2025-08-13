@@ -1,0 +1,32 @@
+{
+  "name": "lost-and-found-system",
+  "version": "1.0.0",
+  "description": "A lost and found management system",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "server": "nodemon server/app.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm install && npm run install-server && npm run install-client"
+  },
+  "keywords": [
+    "lost",
+    "found",
+    "mern",
+    "react",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.1",
+    "lucide-react": "^0.488.0"
+  }
+}

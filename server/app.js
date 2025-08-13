@@ -10,7 +10,7 @@ mongoose.connect(config.mongoURI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// const app = express();
+const app = express();
 
 
 const PORT = config.port || 5000;
