@@ -60,7 +60,7 @@ const Home = () => {
     const fetchContributors = async () => {
       try {
         // Fetch items with contributor information that are within the display period
-        const apiUrl = 'https://lost-and-found-ruddy.vercel.app/api/items/contributors';
+        const apiUrl = `${import.meta.env.VITE_API_URL}/items/contributors`;
         const response = await axios.get(apiUrl);
         setContributors(response.data || []);
       } catch (err) {
