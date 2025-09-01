@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL;
 
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   // Login function to be used by Login component
   const login = useCallback(async (username, password) => {
     try {
-       const response = await axios.post(`${API_URL}/auth/login`, { username, password });
+       const response = await axios.post(`${API_URL}/api/auth/login`, { username, password });
       
       if (response.data.success && response.data.token) {
         const userData = {

@@ -13,6 +13,9 @@ import { formatDate, formatDateTime } from '../utils/dateUtils';
 import SearchBar from '../components/SearchBar';
 import ContextualHelp from '../components/ContextualHelp';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
@@ -167,7 +170,7 @@ const GuardDashboard = () => {
     if (imagePath.startsWith('http')) return imagePath;
     
     // Otherwise, prepend the server URL
-    return `https://lost-and-found-ruddy.vercel.app${imagePath}`;
+    return `${API_URL}${imagePath}`;
   };
   
   // Get claim count for an item

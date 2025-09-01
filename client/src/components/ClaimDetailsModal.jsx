@@ -5,6 +5,8 @@ import { formatDate, formatDateTime } from '../utils/dateUtils';
 import { deliverItem } from '../services/itemService';
 import { toast } from 'react-toastify';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const ClaimDetailsModal = ({ isOpen, onClose, item, onSuccess }) => {
   const [selectedClaimIndex, setSelectedClaimIndex] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -195,7 +197,7 @@ const ClaimDetailsModal = ({ isOpen, onClose, item, onSuccess }) => {
             <div className="flex flex-col md:flex-row mb-6 gap-6">
               <div className="md:w-1/3">
                 <img
-                  src={`https://lost-and-found-ruddy.vercel.app${item.image}`}
+                  src={`${API_URL}${item.image}`}
                   alt={item.name}
                   className="w-full h-auto rounded-lg object-cover"
                   onError={(e) => {

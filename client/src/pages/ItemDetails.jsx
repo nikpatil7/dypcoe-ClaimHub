@@ -10,6 +10,8 @@ import { AuthContext } from '../context/AuthContext';
 import { formatDate, formatDateTime } from '../utils/dateUtils';
 import ClaimDetailsModal from '../components/ClaimDetailsModal';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const ItemDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const ItemDetails = () => {
     const fetchItem = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://lost-and-found-ruddy.vercel.app/api/items/${id}`);
+        const response = await axios.get(`${API_URL}/api/items/${id}`);
         setItem(response.data.data);
         setVerification(response.data.verification);
         console.log('Item verification data:', response.data.verification);
@@ -53,7 +55,7 @@ const ItemDetails = () => {
     // Reload the item to get updated status
     const fetchUpdatedItem = async () => {
       try {
-        const response = await axios.get(`https://lost-and-found-ruddy.vercel.app/api/items/${id}`);
+        const response = await axios.get(`${API_URL}/api/items/${id}`);
         setItem(response.data.data);
         setVerification(response.data.verification);
         toast.success('Claim submitted successfully!');
@@ -68,12 +70,12 @@ const ItemDetails = () => {
 
   const handleMarkAsDelivered = async () => {
     try {
-      await axios.put(`https://lost-and-found-ruddy.vercel.app/api/items/${id}/status`, {
+      await axios.put(`${API_URL}/api/items/${id}/status`, {
         status: 'delivered'
       });
       toast.success('Item marked as delivered');
       // Refresh the item data
-      const response = await axios.get(`https://lost-and-found-ruddy.vercel.app/api/items/${id}`);
+      const response = await axios.get(`${API_URL}/api/items/${id}`);
       setItem(response.data.data);
       setVerification(response.data.verification);
     } catch (err) {
@@ -109,7 +111,7 @@ const ItemDetails = () => {
               onClick={() => setShowImageModal(true)}
             >
               <img 
-                src={`https://lost-and-found-ruddy.vercel.app${item.image}`}
+                src={`${API_URL}${item.image}`}
                 alt={item.name}
                 className="w-full h-64 object-cover md:h-80"
                 onError={(e) => {
@@ -322,7 +324,7 @@ const ItemDetails = () => {
               <FaTimes className="h-6 w-6" />
             </button>
             <img 
-              src={`https://lost-and-found-ruddy.vercel.app${item.image}`}
+              src={`${API_URL}${item.image}`}
               alt={item.name}
               className="w-full h-auto max-h-[90vh] object-contain"
               onError={(e) => {
@@ -345,7 +347,7 @@ const ItemDetails = () => {
             // Refresh item data
             const fetchItem = async () => {
               try {
-                const response = await axios.get(`https://lost-and-found-ruddy.vercel.app/api/items/${id}`);
+                const response = await axios.get(`${API_URL}/api/items/${id}`);
                 setItem(response.data.data);
                 setVerification(response.data.verification);
               } catch (err) {

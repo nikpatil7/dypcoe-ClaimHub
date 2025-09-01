@@ -6,6 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaCamera, FaUpload, FaCheckCircle, FaTrash } from 'react-icons/fa';
 import { formatDate, parseDateForServer } from '../utils/dateUtils';
 import ContextualHelp from '../components/ContextualHelp';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 const AddItem = () => {
   const [formData, setFormData] = useState({
@@ -303,7 +305,8 @@ const AddItem = () => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       
       // Use the imported axios instance or directly call the API
-      const apiUrl = 'https://lost-and-found-ruddy.vercel.app/api/items';
+      // const apiUrl = 'https://lost-and-found-ruddy.vercel.app/api/items';
+      const apiUrl = `${API_URL}/api/items`;
       
       const response = await axios.post(
         apiUrl,

@@ -47,7 +47,7 @@ const ItemCard = ({ item }) => {
     if (imagePath.startsWith('http')) return imagePath;
     
     // Otherwise, prepend the server URL
-    return `https://lost-and-found-ruddy.vercel.app${imagePath}`;
+    return `${API_URL}${imagePath}`;
   };
   
   return (
