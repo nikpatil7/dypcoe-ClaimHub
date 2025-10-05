@@ -1,6 +1,7 @@
 import axios from 'axios';
 import authService from './authService';
-const API_URL = `${import.meta.env.VITE_API_URL}/items`;
+import { API_BASE_URL } from './apiConfig';
+const API_URL = `${API_BASE_URL}/api/items`;
 
 // Set auth token for every request
 axios.interceptors.request.use(

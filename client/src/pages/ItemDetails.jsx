@@ -9,8 +9,9 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { AuthContext } from '../context/AuthContext';
 import { formatDate, formatDateTime } from '../utils/dateUtils';
 import ClaimDetailsModal from '../components/ClaimDetailsModal';
+import { API_BASE_URL } from '../services/apiConfig';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = API_BASE_URL;
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -95,6 +96,22 @@ const ItemDetails = () => {
     return false; // We don't track this currently, so always allow claiming
   };
 
+  // Get the proper image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return '/assets/images/placeholder.svg';
+    
+    // If it's a Cloudinary URL, return as is
+    if (imagePath.startsWith('http') && imagePath.includes('cloudinary.com')) {
+      return imagePath;
+    }
+    
+    // If it's a full URL already, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    
+    // Otherwise, prepend the server URL
+    return `${API_URL}${imagePath}`;
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
   if (!item) return <div className="text-center">Item not found</div>;
@@ -111,12 +128,12 @@ const ItemDetails = () => {
               onClick={() => setShowImageModal(true)}
             >
               <img 
-                src={`${API_URL}${item.image}`}
+                src={getImageUrl(item.image)}
                 alt={item.name}
                 className="w-full h-64 object-cover md:h-80"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/assets/images/placeholder.png';
+                  e.target.src = '/assets/images/placeholder.svg';
                 }}
               />
               <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 rounded-full p-2 text-white">
@@ -324,12 +341,12 @@ const ItemDetails = () => {
               <FaTimes className="h-6 w-6" />
             </button>
             <img 
-              src={`${API_URL}${item.image}`}
+              src={getImageUrl(item.image)}
               alt={item.name}
               className="w-full h-auto max-h-[90vh] object-contain"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/assets/images/placeholder.png';
+                e.target.src = '/assets/images/placeholder.svg';
               }}
             />
           </div>

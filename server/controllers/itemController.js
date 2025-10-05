@@ -2,6 +2,7 @@ const Item = require('../models/Item');
 const asyncHandler = require('express-async-handler');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
 
 // Helper function to format verification time for an item
 const formatVerificationTime = (item) => {
@@ -160,6 +161,31 @@ const createItem = asyncHandler(async (req, res) => {
     req.body.addedBy = req.user.username;
   } else {
     req.body.addedBy = 'dypcoe_guard'; // Default fallback
+  }
+
+  // Upload image to Cloudinary
+  let cloudinaryResult;
+  try {
+    cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'lost-and-found',
+      resource_type: 'image',
+      transformation: [
+        { width: 800, height: 600, crop: 'fill', quality: 'auto' }
+      ]
+    });
+    
+    // Delete the temporary file after upload
+    fs.unlinkSync(req.file.path);
+  } catch (uploadError) {
+    console.error('Cloudinary upload error:', uploadError);
+    // Clean up the temporary file
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to upload image'
+    });
   }
 
   try {
@@ -353,7 +379,7 @@ const createItem = asyncHandler(async (req, res) => {
     
     const item = await Item.create({
       ...itemData,
-      image: `/uploads/${req.file.filename}`
+      image: cloudinaryResult.secure_url
     });
     
     console.log('Created item with foundDate:', item.foundDate);
@@ -379,11 +405,15 @@ const createItem = asyncHandler(async (req, res) => {
       verification: formattedVerification
     });
   } catch (error) {
-    // If there's an error, clean up the uploaded file
-    if (req.file) {
-      const filePath = path.join(__dirname, '../public/uploads', req.file.filename);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    // If there's an error, clean up the uploaded file and Cloudinary image
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
+    if (cloudinaryResult && cloudinaryResult.public_id) {
+      try {
+        await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+      } catch (deleteError) {
+        console.error('Failed to delete Cloudinary image:', deleteError);
       }
     }
     throw error;
@@ -461,16 +491,43 @@ const updateItem = asyncHandler(async (req, res) => {
   
   // If a new image was uploaded
   if (req.file) {
-    // Delete old image if it exists
-    if (item.image) {
-      const oldImagePath = path.join(__dirname, '../public', item.image);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
+    try {
+      // Upload new image to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'lost-and-found',
+        resource_type: 'image',
+        transformation: [
+          { width: 800, height: 600, crop: 'fill', quality: 'auto' }
+        ]
+      });
+      
+      // Delete old image from Cloudinary if it exists
+      if (item.image && item.image.includes('cloudinary.com')) {
+        try {
+          // Extract public_id from Cloudinary URL
+          const urlParts = item.image.split('/');
+          const publicId = urlParts[urlParts.length - 1].split('.')[0];
+          await cloudinary.uploader.destroy(`lost-and-found/${publicId}`);
+        } catch (deleteError) {
+          console.error('Failed to delete old Cloudinary image:', deleteError);
+        }
       }
+      
+      // Delete the temporary file
+      fs.unlinkSync(req.file.path);
+      
+      // Set the new image URL
+      updateData.image = cloudinaryResult.secure_url;
+    } catch (uploadError) {
+      console.error('Cloudinary upload error:', uploadError);
+      if (req.file && req.file.path) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to upload new image'
+      });
     }
-    
-    // Set the new image path
-    updateData.image = `/uploads/${req.file.filename}`;
   }
 
   item = await Item.findByIdAndUpdate(req.params.id, updateData, {
@@ -593,16 +650,43 @@ const updateClaimedItem = asyncHandler(async (req, res) => {
   
   // If a new image was uploaded
   if (req.file) {
-    // Delete old image if it exists
-    if (item.image) {
-      const oldImagePath = path.join(__dirname, '../public', item.image);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
+    try {
+      // Upload new image to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'lost-and-found',
+        resource_type: 'image',
+        transformation: [
+          { width: 800, height: 600, crop: 'fill', quality: 'auto' }
+        ]
+      });
+      
+      // Delete old image from Cloudinary if it exists
+      if (item.image && item.image.includes('cloudinary.com')) {
+        try {
+          // Extract public_id from Cloudinary URL
+          const urlParts = item.image.split('/');
+          const publicId = urlParts[urlParts.length - 1].split('.')[0];
+          await cloudinary.uploader.destroy(`lost-and-found/${publicId}`);
+        } catch (deleteError) {
+          console.error('Failed to delete old Cloudinary image:', deleteError);
+        }
       }
+      
+      // Delete the temporary file
+      fs.unlinkSync(req.file.path);
+      
+      // Set the new image URL
+      updateData.image = cloudinaryResult.secure_url;
+    } catch (uploadError) {
+      console.error('Cloudinary upload error:', uploadError);
+      if (req.file && req.file.path) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to upload new image'
+      });
     }
-    
-    // Set the new image path
-    updateData.image = `/uploads/${req.file.filename}`;
   }
 
   item = await Item.findByIdAndUpdate(req.params.id, updateData, {
@@ -694,19 +778,26 @@ const deleteItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Delete main item image file
-  if (item.image) {
-    const imagePath = path.join(__dirname, '../public', item.image);
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
+  // Delete main item image from Cloudinary
+  if (item.image && item.image.includes('cloudinary.com')) {
+    try {
+      // Extract public_id from Cloudinary URL
+      const urlParts = item.image.split('/');
+      const publicId = urlParts[urlParts.length - 1].split('.')[0];
+      await cloudinary.uploader.destroy(`lost-and-found/${publicId}`);
+    } catch (deleteError) {
+      console.error('Failed to delete Cloudinary image:', deleteError);
     }
   }
 
-  // Delete ID proof image if it exists (for claimed items)
-  if (item.claimedBy && item.claimedBy.idProofImage) {
-    const idProofPath = path.join(__dirname, '../public', item.claimedBy.idProofImage);
-    if (fs.existsSync(idProofPath)) {
-      fs.unlinkSync(idProofPath);
+  // Delete ID proof image from Cloudinary if it exists (for claimed items)
+  if (item.claimedBy && item.claimedBy.idProofImage && item.claimedBy.idProofImage.includes('cloudinary.com')) {
+    try {
+      const urlParts = item.claimedBy.idProofImage.split('/');
+      const publicId = urlParts[urlParts.length - 1].split('.')[0];
+      await cloudinary.uploader.destroy(`lost-and-found/${publicId}`);
+    } catch (deleteError) {
+      console.error('Failed to delete ID proof Cloudinary image:', deleteError);
     }
   }
 

@@ -12,8 +12,9 @@ import SuccessModal from '../components/SuccessModal';
 import { formatDate, formatDateTime } from '../utils/dateUtils';
 import SearchBar from '../components/SearchBar';
 import ContextualHelp from '../components/ContextualHelp';
+import { API_BASE_URL } from '../services/apiConfig';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = API_BASE_URL;
 
 
 function classNames(...classes) {
@@ -164,7 +165,12 @@ const GuardDashboard = () => {
 
   // Get the proper image URL
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/assets/images/placeholder.png';
+    if (!imagePath) return '/assets/images/placeholder.svg';
+    
+    // If it's a Cloudinary URL, return as is
+    if (imagePath.startsWith('http') && imagePath.includes('cloudinary.com')) {
+      return imagePath;
+    }
     
     // If it's a full URL already, return as is
     if (imagePath.startsWith('http')) return imagePath;
@@ -340,7 +346,7 @@ const GuardDashboard = () => {
                                 className="h-16 w-16 object-cover rounded"
                                 onError={(e) => {
                                   e.target.onerror = null;
-                                  e.target.src = '/assets/images/placeholder.png';
+                                  e.target.src = '/assets/images/placeholder.svg';
                                 }}
                               />
                             </td>

@@ -4,14 +4,31 @@ import { FaCheck, FaUser, FaTimes, FaUserTie, FaUserShield, FaUserCog } from 're
 import { formatDate, formatDateTime } from '../utils/dateUtils';
 import { deliverItem } from '../services/itemService';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../services/apiConfig';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = API_BASE_URL;
 
 const ClaimDetailsModal = ({ isOpen, onClose, item, onSuccess }) => {
   const [selectedClaimIndex, setSelectedClaimIndex] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
   if (!item) return null;
+
+  // Get the proper image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return '/assets/images/placeholder.svg';
+    
+    // If it's a Cloudinary URL, return as is
+    if (imagePath.startsWith('http') && imagePath.includes('cloudinary.com')) {
+      return imagePath;
+    }
+    
+    // If it's a full URL already, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    
+    // Otherwise, prepend the server URL
+    return `${API_URL}${imagePath}`;
+  };
   
   const handleDeliverToClaimant = async () => {
     if (selectedClaimIndex === null) {
@@ -197,12 +214,12 @@ const ClaimDetailsModal = ({ isOpen, onClose, item, onSuccess }) => {
             <div className="flex flex-col md:flex-row mb-6 gap-6">
               <div className="md:w-1/3">
                 <img
-                  src={`${API_URL}${item.image}`}
+                  src={getImageUrl(item.image)}
                   alt={item.name}
                   className="w-full h-auto rounded-lg object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/assets/images/placeholder.png';
+                    e.target.src = '/assets/images/placeholder.svg';
                   }}
                 />
               </div>

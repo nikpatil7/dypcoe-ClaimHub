@@ -6,7 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaCamera, FaUpload, FaCheckCircle, FaTrash } from 'react-icons/fa';
 import { formatDate, parseDateForServer } from '../utils/dateUtils';
 import ContextualHelp from '../components/ContextualHelp';
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_BASE_URL } from '../services/apiConfig';
+const API_URL = API_BASE_URL;
 
 
 const AddItem = () => {

@@ -6,6 +6,7 @@ const path = require('path');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const config = require('./config/config');
 const { startScheduler } = require('./utils/claimScheduler');
+const { cloudinaryConnect } = require('./config/cloudinary');
 
 // Load environment variables
 dotenv.config();
@@ -14,6 +15,9 @@ dotenv.config();
 mongoose.connect(config.mongoURI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
+
+// Connect to Cloudinary
+cloudinaryConnect();
 
 const app = express();
 

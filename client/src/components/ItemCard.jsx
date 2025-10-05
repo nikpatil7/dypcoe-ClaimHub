@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../services/apiConfig';
+const API_URL = API_BASE_URL;
 
 const ItemCard = ({ item }) => {
   // Safely access item properties with defaults
@@ -41,7 +43,12 @@ const ItemCard = ({ item }) => {
   
   // Get the proper image URL
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/assets/images/placeholder.png';
+    if (!imagePath) return '/assets/images/placeholder.svg';
+    
+    // If it's a Cloudinary URL, return as is
+    if (imagePath.startsWith('http') && imagePath.includes('cloudinary.com')) {
+      return imagePath;
+    }
     
     // If it's a full URL already, return as is
     if (imagePath.startsWith('http')) return imagePath;
@@ -59,7 +66,7 @@ const ItemCard = ({ item }) => {
           className="w-full h-full object-cover"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = '/assets/images/placeholder.png';
+            e.target.src = '/assets/images/placeholder.svg';
           }}
         />
         <div className="absolute top-2 right-2">
