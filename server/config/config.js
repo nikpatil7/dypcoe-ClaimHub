@@ -16,8 +16,8 @@ module.exports = {
   JWT_EXPIRE: '8h',
   // Hardcoded guard credentials (in production, store hashed password)
   GUARD_CREDENTIALS: {
-    username: process.env.GUARD_NAME || 'admin',
-    password: process.env.GUARD_PASSWORD || 'admin123'
+    email: process.env.GUARD_EMAIL || 'guard@dypcoe.edu',
+    password: process.env.GUARD_PASSWORD || 'Guard@123'
   },
   // Email configuration
   SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',

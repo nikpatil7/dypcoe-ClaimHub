@@ -3,10 +3,11 @@ const config = require('../config/config');
 
 // Simplified model since we only have one hardcoded guard
 class User {
-  static async findByUsername(username) {
-    if (username === config.GUARD_CREDENTIALS.username) {
+  static async findByEmail(email) {
+    if (email === config.GUARD_CREDENTIALS.email) {
       return {
-        username: config.GUARD_CREDENTIALS.username,
+        name: config.GUARD_CREDENTIALS.name,
+        email: config.GUARD_CREDENTIALS.email,
         password: config.GUARD_CREDENTIALS.password,
         role: 'guard'
       };
@@ -20,7 +21,7 @@ class User {
 
   static getSignedJwtToken(user) {
     return jwt.sign(
-      { id: user.username, role: user.role },
+      { id: user.email, role: user.role },
       config.JWT_SECRET,
       { expiresIn: config.JWT_EXPIRE }
     );

@@ -157,8 +157,8 @@ const createItem = asyncHandler(async (req, res) => {
   }
 
   // Add user to req.body if auth system is active
-  if (req.user && req.user.username) {
-    req.body.addedBy = req.user.username;
+  if (req.user && req.user.name) {
+    req.body.addedBy = req.user.name;
   } else {
     req.body.addedBy = 'dypcoe_guard'; // Default fallback
   }

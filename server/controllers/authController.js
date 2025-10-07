@@ -1,12 +1,10 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const Guard = require('../models/Guard');
 const config = require('../config/config');
 
-// Generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, config.jwtSecret, {
-    expiresIn: '7d',
-  });
+  return jwt.sign({ id }, config.jwtSecret, { expiresIn: '7d' });
 };
 
 // @desc    Authenticate guard & get token
@@ -14,37 +12,27 @@ const generateToken = (id) => {
 // @access  Public
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const email = (req.body.email || '').toString().toLowerCase().trim();
+    const password = req.body.password;
 
-    // Check for username and password
-    if (!username || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Please provide username and password' 
-      });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    // Find the guard by username
-    const guard = await Guard.findOne({ username });
-
+    const guard = await Guard.findOne({ email });
     if (!guard) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid credentials' 
-      });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Check if password matches
-    const isMatch = await guard.comparePassword(password);
-
+    const isMatch = await bcrypt.compare(password, guard.password);
     if (!isMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid credentials' 
-      });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // If credentials are valid, generate a token
+    if (guard.isActive === false) {
+      return res.status(403).json({ success: false, message: 'Access revoked' });
+    }
+
     const token = generateToken(guard._id);
 
     res.json({
@@ -52,42 +40,27 @@ exports.login = async (req, res) => {
       token,
       guard: {
         id: guard._id,
-        username: guard.username,
+        email: guard.email,
+        name: guard.name,
         role: guard.role
       }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// @desc    Get current guard
-// @route   GET /api/auth/me
-// @access  Private
+// @desc Get current guard
+// @route GET /api/auth/me
+// @access Private
 exports.getMe = async (req, res) => {
   try {
     const guard = await Guard.findById(req.guard.id).select('-password');
-    
-    if (!guard) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Guard not found' 
-      });
-    }
-
-    res.json({
-      success: true,
-      data: guard
-    });
+    if (!guard) return res.status(404).json({ success: false, message: 'Guard not found' });
+    res.json({ success: true, data: guard });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };

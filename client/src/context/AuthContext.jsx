@@ -11,13 +11,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Login function to be used by Login component
-  const login = useCallback(async (username, password) => {
+  const login = useCallback(async (email, password) => {
     try {
-       const response = await axios.post(`${API_URL}/api/auth/login`, { username, password });
+       const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       
       if (response.data.success && response.data.token) {
         const userData = {
-          username: response.data.guard.username,
+          name: response.data.guard.name,
           role: response.data.guard.role,
           id: response.data.guard.id,
           token: response.data.token

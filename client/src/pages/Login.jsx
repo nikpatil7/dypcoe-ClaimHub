@@ -8,7 +8,7 @@ const Login = () => {
   const navigate = useNavigate();
   
   const [credentials, setCredentials] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -33,10 +33,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { username, password } = credentials;
+    const { email, password } = credentials;
 
     // Validation checks
-    if (!username || !password) {
+    if (!email || !password) {
       setError("Fields should not be empty");
       return;
     }
@@ -44,7 +44,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await login(username, password);
+      await login(email, password);
       setSuccess("Login successful!");
       setError(""); // Clear any previous error
       
@@ -53,7 +53,7 @@ const Login = () => {
         navigate("/GuardDashboard");
       }, 1500);
     } catch (err) {
-      setError(err.message || "Invalid username or password");
+      setError(err.message || "Invalid email or password"); 
     } finally {
       setLoading(false);
     }
@@ -85,21 +85,21 @@ const Login = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="username" className="sr-only">
-                Username
+              <label htmlFor="email" className="sr-only">
+                Email
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-3 text-gray-400">
                   <FaUser />
                 </div>
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={credentials.username}
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={credentials.email}
                   onChange={handleChange}
                   className="appearance-none rounded-lg relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Username"
+                  placeholder="Email"
                 />
               </div>
             </div>
